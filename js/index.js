@@ -7,6 +7,30 @@ var docHelper = {
   }
 };
 
+/**
+ * Returns the midpoint of the canvas
+ * @param  {object} data       The data object tied to the element
+ * @param  {string} coordinate Reference to X or Y
+ * @return {number}            The value of coordinate to be placed in canvas
+ */
+var getMidpoint = function (data, coordinate) {
+  if (data.index === 0) {
+    switch (coordinate) {
+      case "x":
+        return w/2;
+        break;
+      case "y":
+        return h/2;
+        break;
+      default:
+        console.log("incorrect coordinate, only x or y");
+        break;
+    }
+  } else {
+    return data[coordinate];
+  }
+};
+
 // Start of D3 and the ...
 // Big spaghetti code
 var sampleData = {
@@ -92,8 +116,11 @@ var nodes = svg.selectAll("circle")
   .data(dataset.nodes)
   .enter()
   .append("circle")
-  .attr("r", function(d, i) {
-    return d.relevantScore * 20;
+  .attr(
+  {
+    "r": function(d, i) {
+          return d.relevantScore * 20;
+        }
   })
   .style("fill",function(d,i){return colors(i);})
   .call(force.drag)
@@ -164,11 +191,14 @@ force.on("tick", function(){
                 "y2": function(d){return d.target.y;}
     });
 
-    nodes.attr({"cx":function(d){return d.x;},
-                "cy":function(d){return d.y;}
-    });
+    nodes.attr(
+      {
+        "cx": function (d) { return d.x },
+        "cy": function (d) { return d.y }
+      }
+    );
 
-    nodelabels.attr("x", function(d) { return d.x; }) 
+    nodelabels.attr("x", function(d) { return d.x; })
               .attr("y", function(d) { return d.y; });
 
     edgepaths.attr('d', function(d) { var path='M '+d.source.x+' '+d.source.y+' L '+ d.target.x +' '+d.target.y;
@@ -188,6 +218,23 @@ force.on("tick", function(){
             }
     });
 });
+
+
+// Not working as intended, need to gracefully move towards center
+// 
+// force.on("end", function (){
+//   nodes.attr(
+//   {
+//     "cx": function (d) {
+//       return getMidpoint(d, "x");
+//     },
+//     "cy": function (d) {
+//       return getMidpoint(d, "y");
+//     }
+//   });
+// });
+
+
 // svg.selectAll("circle")
 //     .data(subtopic)
 //     .enter().append('circle')
