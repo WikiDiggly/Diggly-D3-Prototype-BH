@@ -8,3 +8,7 @@ body {
 #main #text {
   padding-bottom: 10px;
 }
+
+.node {
+	cursor: pointer;
+}

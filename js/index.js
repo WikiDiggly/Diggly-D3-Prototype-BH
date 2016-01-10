@@ -1,3 +1,13 @@
+/**
+ * Currently this is spaghetti / POC code for Diggly FE interactive piece,
+ * This will be broken apart as we begin working on initial beta version.
+ */
+
+
+/**
+ * Object for the document actions and behaviors
+ * @type {Object}
+ */
 var docHelper = {
   updateBox: function (description, url, score) {
     $('#description').text(description);
@@ -62,6 +72,7 @@ var mainNode = {
   relevantScore: 1
 };
 
+
 var dataset = {
   nodes: sampleData.relevantTopic,
   edges: [
@@ -83,8 +94,8 @@ var dataset = {
 // Move main node upfront
 dataset.nodes.unshift(mainNode);
 
-var w = window.innerWidth / 2;
-var h = window.innerHeight / 2;
+var w = window.innerWidth / 1.4;
+var h = window.innerHeight / 1.2;
 var linkDistance = 200;
 var colors = d3.scale.category10();
 
@@ -93,11 +104,41 @@ var svg = d3.select('body').append('svg');
 svg.attr('width', w);
 svg.attr('height', h);
 
+/**
+ * Builds the link distance per node
+ * @param  {object} link    Links objects being compared in iteration
+ * @param  {int} maxDist Maximum distance for each link
+ * @return {int}         Relevant link distance base on nodes
+ */
+var buildLinkDist = function(link, maxDist) {
+  return link.source.relevantScore * maxDist;
+};
+
+
+/**
+ * Returns the max distance for the canvas
+ * @param  {int} dim1 Dimension to compare to
+ * @param  {int} dim2 Second Dimension to compare to
+ * @return {int}      Maximum distance based on canvas dimensions
+ */
+var getMaxLength = function(dim1, dim2) {
+  var baseDim = (dim1 < dim2) ? dim1 : dim2;
+
+  // Divide by two, as canvas begins in middle of Canvas
+  baseDim = baseDim / 2;
+  return baseDim;
+};
+
+var baseDist = getMaxLength(w, h);
+
 var force = d3.layout.force()
     .nodes(dataset.nodes)
     .links(dataset.edges)
-    .size([w,h])
-    .linkDistance([linkDistance])
+    .size([w - 20,h - 20])
+    .linkDistance(function(link) {
+      // Needs to be passed in as a callback? not sure why this is the case
+      return buildLinkDist(link, baseDist);
+    })
     .charge([-500])
     .theta(0.1)
     .gravity(0.05)
@@ -119,8 +160,9 @@ var nodes = svg.selectAll("circle")
   .attr(
   {
     "r": function(d, i) {
-          return d.relevantScore * 20;
-        }
+      return d.relevantScore * 20;
+    },
+    "class": "node"
   })
   .style("fill",function(d,i){return colors(i);})
   .call(force.drag)
