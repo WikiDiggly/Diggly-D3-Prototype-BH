@@ -111,7 +111,9 @@ svg.attr('height', h);
  * @return {int}         Relevant link distance base on nodes
  */
 var buildLinkDist = function(link, maxDist) {
-  return link.source.relevantScore * maxDist;
+  // Return the inverse of the distance
+  // as it should get closer to the main node
+  return Math.abs(1 - (link.source.relevantScore * maxDist));
 };
 
 
